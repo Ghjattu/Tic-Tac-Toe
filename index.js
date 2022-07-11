@@ -34,6 +34,8 @@ class Board extends React.Component {
     render() {
         return (
             <div>
+                <span className="x origin">0</span>
+                <span className="y origin">0</span>
                 <div className="board-row">
                     {this.renderSquare(0)}
                     {this.renderSquare(1)}
@@ -59,7 +61,10 @@ class Game extends React.Component {
         super(props);
         this.state = {
             history: [{
-                squares: Array(9).fill(null)
+                squares: Array(9).fill(null),
+                isX: false,         // 判断当前棋子是否为'X'
+                xCoordinate: -1,    // 横轴为x轴，纵轴为y轴，左上角坐标为(0,0)
+                yCoordinate: -1
             }],
             xIsNext: true,
             stepNumber: 0
@@ -74,9 +79,16 @@ class Game extends React.Component {
             return;
         }
         squares[i] = this.state.xIsNext ? 'X' : 'O';
+        const isX = this.state.xIsNext;
+        const xCoordinate = i % 3;
+        const yCoordinate = Math.floor(i / 3);
+
         this.setState(preState => ({
             history: history.concat([{
                 squares: squares,
+                isX: isX,
+                xCoordinate: xCoordinate,
+                yCoordinate: yCoordinate
             }]),
             xIsNext: !preState.xIsNext,
             stepNumber: history.length
@@ -103,9 +115,10 @@ class Game extends React.Component {
 
         const moves = history.map((step, move) => {
             const desc = move ? `Go to move #${move}` : `Go to game start`;
+            const coordinate = `: ${step.isX ? 'X' : 'O'} located (${step.xCoordinate},${step.yCoordinate})`;
             return (
                 <li key={move}>
-                    <button onClick={() => this.jumpTo(move)}>{desc}</button>
+                    <button onClick={() => this.jumpTo(move)}>{desc}{move > 0 && coordinate}</button>
                 </li>
             );
         });
