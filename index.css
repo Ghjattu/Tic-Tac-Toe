@@ -90,3 +90,7 @@ ol, ul {
 .game-info {
     margin: 10px 20px 0;
 }
+
+.bold {
+    font-weight: bold;
+}

@@ -118,7 +118,8 @@ class Game extends React.Component {
             const coordinate = `: ${step.isX ? 'X' : 'O'} located (${step.xCoordinate},${step.yCoordinate})`;
             return (
                 <li key={move}>
-                    <button onClick={() => this.jumpTo(move)}>{desc}{move > 0 && coordinate}</button>
+                    <button className={move === this.state.stepNumber ? "bold" : ""}
+                            onClick={() => this.jumpTo(move)}>{desc}{move > 0 && coordinate}</button>
                 </li>
             );
         });
