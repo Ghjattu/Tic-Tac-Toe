@@ -28,29 +28,28 @@ function Square(props) {
 
 class Board extends React.Component {
     renderSquare(i) {
-        return <Square value={this.props.squares[i]} onClick={() => this.props.onClick(i)}/>;
+        return <Square value={this.props.squares[i]} onClick={() => this.props.onClick(i)} key={i}/>;
     }
 
     render() {
+        /*
+         * 通过循环渲染 n * n 的棋盘
+         */
+        const n = Math.sqrt(this.props.squares.length);
+        const board = [];
+        for (let row = 0; row < n; row++) {
+            const boardRow = [];
+            for (let column = 0; column < n; column++) {
+                boardRow.push(this.renderSquare(row * n + column));
+            }
+            board.push(<div className="board-row" key={row}>{boardRow}</div>);
+        }
+
         return (
             <div>
                 <span className="x origin">0</span>
                 <span className="y origin">0</span>
-                <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
-                </div>
+                {board}
             </div>
         );
     }
@@ -60,6 +59,7 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            boardSize: 9,
             history: [{
                 squares: Array(9).fill(null),
                 isX: false,         // 判断当前棋子是否为'X'
@@ -69,6 +69,7 @@ class Game extends React.Component {
             xIsNext: true,
             stepNumber: 0
         };
+        this.handleChange = this.handleChange.bind(this);
     }
 
     handleClick(i) {
@@ -102,6 +103,20 @@ class Game extends React.Component {
         })
     }
 
+    handleChange(event) {
+        this.setState({
+            boardSize: parseInt(event.target.value),
+            history: [{
+                squares: Array(parseInt(event.target.value)).fill(null),
+                isX: false,
+                xCoordinate: -1,
+                yCoordinate: -1
+            }],
+            xIsNext: true,
+            stepNumber: 0
+        });
+    }
+
     render() {
         const history = this.state.history;
         const current = history[this.state.stepNumber];
@@ -125,18 +140,68 @@ class Game extends React.Component {
         });
 
         return (
-            <div className="game">
-                <div className="game-board">
-                    <Board squares={current.squares} onClick={(i) => this.handleClick(i)}/>
+            <div>
+                <div className="selector">
+                    <label htmlFor="board-size">
+                        board size :
+                        <select name="sizes" id="board-size" value={this.state.boardSize}
+                                onChange={this.handleChange}>
+                            <option value="9">9</option>
+                            <option value="16">16</option>
+                            <option value="25">25</option>
+                            <option value="36">36</option>
+                        </select>
+                    </label>
                 </div>
-                <div className="game-info">
-                    <div>{status}</div>
-                    <ol>{moves}</ol>
+                <div className="game">
+                    <div className="game-board">
+                        <Board squares={current.squares} onClick={(i) => this.handleClick(i)}/>
+                    </div>
+                    <div className="game-info">
+                        <div>{status}</div>
+                        <ol>{moves}</ol>
+                    </div>
                 </div>
             </div>
         );
     }
 }
+
+// class GamePanel extends React.Component {
+//     constructor(props) {
+//         super(props);
+//         this.state = {
+//             boardSize: 9
+//         }
+//         this.handleChange = this.handleChange.bind(this);
+//     }
+//
+//     handleChange(event) {
+//         this.setState({
+//             boardSize: parseInt(event.target.value)
+//         })
+//     }
+//
+//     render() {
+//         return (
+//             <div>
+//                 <div className="selector">
+//                     <label htmlFor="board-size">
+//                         board size :
+//                         <select name="sizes" id="board-size" value={this.state.boardSize}
+//                                 onChange={this.handleChange}>
+//                             <option value="9">9</option>
+//                             <option value="16">16</option>
+//                             <option value="25">25</option>
+//                             <option value="36">36</option>
+//                         </select>
+//                     </label>
+//                 </div>
+//                 <Game boardSize={this.state.boardSize}/>
+//             </div>
+//         );
+//     }
+// }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<Game/>);
