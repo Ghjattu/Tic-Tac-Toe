@@ -1,18 +1,39 @@
 function calculateWinner(squares) {
-    const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-    ];
-    for (let i = 0; i < lines.length; i++) {
-        const [a, b, c] = lines[i];
-        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return squares[a];
+    const n = Math.sqrt(squares.length);
+
+    // 横
+    for (let row = 0; row < n; row++) {
+        for (let col = 0; col <= n - 3; col++) {
+            const start = row * n + col;
+            if (squares[start] && squares[start] === squares[start + 1] && squares[start] === squares[start + 2])
+                return squares[start];
+        }
+    }
+
+    // 竖
+    for (let row = 0; row <= n - 3; row++) {
+        for (let col = 0; col < n; col++) {
+            const start = row * n + col;
+            if (squares[start] && squares[start] === squares[start + n] && squares[start] === squares[start + 2 * n])
+                return squares[start];
+        }
+    }
+
+    // 正对角线
+    for (let row = 0; row <= n - 3; row++) {
+        for (let col = 0; col <= n - 3; col++) {
+            const start = row * n + col;
+            if (squares[start] && squares[start] === squares[start + n + 1] && squares[start] === squares[start + 2 * (n + 1)])
+                return squares[start];
+        }
+    }
+
+    // 反对角线
+    for (let row = 0; row <= n - 3; row++) {
+        for (let col = 2; col < n; col++) {
+            const start = row * n + col;
+            if (squares[start] && squares[start] === squares[start + n - 1] && squares[start] === squares[start + 2 * (n - 1)])
+                return squares[start];
         }
     }
     return null;
@@ -32,9 +53,7 @@ class Board extends React.Component {
     }
 
     render() {
-        /*
-         * 通过循环渲染 n * n 的棋盘
-         */
+        // 通过循环渲染 n * n 的棋盘
         const n = Math.sqrt(this.props.squares.length);
         const board = [];
         for (let row = 0; row < n; row++) {
@@ -81,8 +100,8 @@ class Game extends React.Component {
         }
         squares[i] = this.state.xIsNext ? 'X' : 'O';
         const isX = this.state.xIsNext;
-        const xCoordinate = i % 3;
-        const yCoordinate = Math.floor(i / 3);
+        const xCoordinate = i % Math.sqrt(squares.length);
+        const yCoordinate = Math.floor(i / Math.sqrt(squares.length));
 
         this.setState(preState => ({
             history: history.concat([{
@@ -166,42 +185,6 @@ class Game extends React.Component {
         );
     }
 }
-
-// class GamePanel extends React.Component {
-//     constructor(props) {
-//         super(props);
-//         this.state = {
-//             boardSize: 9
-//         }
-//         this.handleChange = this.handleChange.bind(this);
-//     }
-//
-//     handleChange(event) {
-//         this.setState({
-//             boardSize: parseInt(event.target.value)
-//         })
-//     }
-//
-//     render() {
-//         return (
-//             <div>
-//                 <div className="selector">
-//                     <label htmlFor="board-size">
-//                         board size :
-//                         <select name="sizes" id="board-size" value={this.state.boardSize}
-//                                 onChange={this.handleChange}>
-//                             <option value="9">9</option>
-//                             <option value="16">16</option>
-//                             <option value="25">25</option>
-//                             <option value="36">36</option>
-//                         </select>
-//                     </label>
-//                 </div>
-//                 <Game boardSize={this.state.boardSize}/>
-//             </div>
-//         );
-//     }
-// }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<Game/>);
