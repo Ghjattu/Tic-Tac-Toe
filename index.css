@@ -102,3 +102,7 @@ ol, ul {
 .selector select {
     margin: 0 10px 0;
 }
+
+.highlight {
+    background-color: #59dd5d;
+}

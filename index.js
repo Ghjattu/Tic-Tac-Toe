@@ -1,3 +1,6 @@
+// 记录获胜时三个棋子的下标
+let winnerIndex = []
+
 function calculateWinner(squares) {
     const n = Math.sqrt(squares.length);
 
@@ -5,8 +8,10 @@ function calculateWinner(squares) {
     for (let row = 0; row < n; row++) {
         for (let col = 0; col <= n - 3; col++) {
             const start = row * n + col;
-            if (squares[start] && squares[start] === squares[start + 1] && squares[start] === squares[start + 2])
+            if (squares[start] && squares[start] === squares[start + 1] && squares[start] === squares[start + 2]) {
+                winnerIndex.splice(0, 0, start, start + 1, start + 2);
                 return squares[start];
+            }
         }
     }
 
@@ -14,8 +19,10 @@ function calculateWinner(squares) {
     for (let row = 0; row <= n - 3; row++) {
         for (let col = 0; col < n; col++) {
             const start = row * n + col;
-            if (squares[start] && squares[start] === squares[start + n] && squares[start] === squares[start + 2 * n])
+            if (squares[start] && squares[start] === squares[start + n] && squares[start] === squares[start + 2 * n]) {
+                winnerIndex.splice(0, 0, start, start + n, start + 2 * n);
                 return squares[start];
+            }
         }
     }
 
@@ -23,8 +30,10 @@ function calculateWinner(squares) {
     for (let row = 0; row <= n - 3; row++) {
         for (let col = 0; col <= n - 3; col++) {
             const start = row * n + col;
-            if (squares[start] && squares[start] === squares[start + n + 1] && squares[start] === squares[start + 2 * (n + 1)])
+            if (squares[start] && squares[start] === squares[start + n + 1] && squares[start] === squares[start + 2 * (n + 1)]) {
+                winnerIndex.splice(0, 0, start, start + n + 1, start + 2 * (n + 1));
                 return squares[start];
+            }
         }
     }
 
@@ -32,16 +41,26 @@ function calculateWinner(squares) {
     for (let row = 0; row <= n - 3; row++) {
         for (let col = 2; col < n; col++) {
             const start = row * n + col;
-            if (squares[start] && squares[start] === squares[start + n - 1] && squares[start] === squares[start + 2 * (n - 1)])
+            if (squares[start] && squares[start] === squares[start + n - 1] && squares[start] === squares[start + 2 * (n - 1)]) {
+                winnerIndex.splice(0, 0, start, start + n - 1, start + 2 * (n - 1));
                 return squares[start];
+            }
         }
     }
-    return null;
+
+    //判断平局
+    let numberOfPieces = 0;
+    squares.forEach(item => {
+        if (item === 'X' || item === 'O')
+            numberOfPieces += 1;
+    });
+    return (numberOfPieces === squares.length ? 'tie' : null);
 }
 
 function Square(props) {
+    const className = `square ${props.className}`;
     return (
-        <button className="square" onClick={props.onClick}>
+        <button className={className} onClick={props.onClick}>
             {props.value}
         </button>
     );
@@ -49,7 +68,9 @@ function Square(props) {
 
 class Board extends React.Component {
     renderSquare(i) {
-        return <Square value={this.props.squares[i]} onClick={() => this.props.onClick(i)} key={i}/>;
+        const className = winnerIndex.indexOf(i) !== -1 ? "highlight" : "";
+        return <Square value={this.props.squares[i]} onClick={() => this.props.onClick(i)} key={i}
+                       className={className}/>;
     }
 
     render() {
@@ -116,6 +137,7 @@ class Game extends React.Component {
     }
 
     jumpTo(step) {
+        winnerIndex.splice(0, winnerIndex.length);
         this.setState({
             xIsNext: (step % 2 === 0),
             stepNumber: step
@@ -123,6 +145,7 @@ class Game extends React.Component {
     }
 
     handleChange(event) {
+        winnerIndex.splice(0, winnerIndex.length);
         this.setState({
             boardSize: parseInt(event.target.value),
             history: [{
@@ -141,7 +164,9 @@ class Game extends React.Component {
         const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
         let status;
-        if (winner) {
+        if (winner === 'tie') {
+            status = 'Tie !!!';
+        } else if (winner) {
             status = `Winner: ${winner}`;
         } else {
             status = `Next player: ${this.state.xIsNext ? 'X' : 'O'}`;
