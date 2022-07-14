@@ -47,7 +47,14 @@ function calculateWinner(squares) {
             }
         }
     }
-    return null;
+
+    //判断平局
+    let numberOfPieces = 0;
+    squares.forEach(item => {
+        if (item === 'X' || item === 'O')
+            numberOfPieces += 1;
+    });
+    return (numberOfPieces === squares.length ? 'tie' : null);
 }
 
 function Square(props) {
@@ -157,7 +164,9 @@ class Game extends React.Component {
         const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
         let status;
-        if (winner) {
+        if (winner === 'tie') {
+            status = 'Tie !!!';
+        } else if (winner) {
             status = `Winner: ${winner}`;
         } else {
             status = `Next player: ${this.state.xIsNext ? 'X' : 'O'}`;
